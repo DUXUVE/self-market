@@ -1,18 +1,15 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, PhoneNumber
 
-class UserBase(BaseModel):
-    username: str
-    email: EmailStr
-
-class UserCreate(UserBase):
+class UserCreate:
+    phone_number: PhoneNumber
     password: str
+    name: str
+    city: str
+    description: str | None
 
-class User(UserBase):
+class User:
     id: int
     is_active: bool = True
 
     class Config:
         from_attributes = True
-
-class UserInDB(User):
-    hashed_password: str

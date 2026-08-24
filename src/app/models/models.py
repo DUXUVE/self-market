@@ -1,5 +1,5 @@
 from sqlalchemy import BigInteger, String, Text
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column 
 
 
 class Base(DeclarativeBase):
@@ -16,5 +16,5 @@ class User(Base):
     password: Mapped[str] = mapped_column(String(255), nullable=False)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     city: Mapped[str] = mapped_column(String(255), nullable=False)
-    avatar_link: Mapped[str] = mapped_column(String(1023), nullable=False)
+    avatar_link: Mapped[str] = mapped_column(String(1023), nullable=True)
     description: Mapped[str] = mapped_column(Text, nullable=False)

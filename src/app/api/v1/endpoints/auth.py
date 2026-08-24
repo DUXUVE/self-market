@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from app.schemas.token import Token
+from app.schemas.user import UserCreate 
 from app.services.user_service import authenticate_user
 from app.core.security import create_access_token
+from app.models.models import User
 
 router = APIRouter(prefix="/auth", tags=["authentication"])
 
@@ -25,3 +27,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     access_token = create_access_token(data={"sub": user.username})
     
     return Token(access_token=access_token, token_type="bearer")
+
+@router.post("/register") 
+async def register(user: UserCreate): 
+    db_user = User()
