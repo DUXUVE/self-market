@@ -13,7 +13,7 @@ class User(Base):
         BigInteger, primary_key=True, autoincrement=True
     )
     phone_number: Mapped[str] = mapped_column(String(31), nullable=False)
-    password: Mapped[str] = mapped_column(String(255), nullable=False)
+    hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     city: Mapped[str] = mapped_column(String(255), nullable=False)
     avatar_link: Mapped[str] = mapped_column(String(1023), nullable=True)

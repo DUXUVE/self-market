@@ -5,6 +5,7 @@ from app.schemas.user import UserCreate
 from app.services.user_service import authenticate_user
 from app.core.security import create_access_token
 from app.models.models import User
+from app.core.security import get_password_hash
 
 router = APIRouter(prefix="/auth", tags=["authentication"])
 
@@ -28,6 +29,32 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     
     return Token(access_token=access_token, token_type="bearer")
 
+async def create_user(db: AsyncSession, user: UserCreate) -> User:
+    result = await db.execute(select(User).where(User.phone_number == phone_number))
+    exists = result.scalar_one_or_none()
+    if exists:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Пользователь уже зарегестрирован.",
+        )
+
+    user = User(
+        phone_number=user.phone_number,
+        hashed_password=get_password_hash(user.password),
+        name=user.name,
+        city=user.city,
+        description=user.description
+    )
+
+    db.add(user)
+    await db.commit()
+    await db.refresh(user)
+    return user
+
 @router.post("/register") 
-async def register(user: UserCreate): 
-    db_user = User()
+async def register(payload: UserCreate, db: AsyncSession = Depends(get_db)): 
+    # db_user = User()
+    phone_number = payload.phone_number
+    
+    user = await create_user(db, payload)
+    return user
