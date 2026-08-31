@@ -30,6 +30,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     return Token(access_token=access_token, token_type="bearer")
 
 async def create_user(db: AsyncSession, user: UserCreate) -> User:
+    # по номеру телефона проверяет зарегестрирован пользователь/нет
     result = await db.execute(select(User).where(User.phone_number == phone_number))
     exists = result.scalar_one_or_none()
     if exists:
@@ -37,7 +38,8 @@ async def create_user(db: AsyncSession, user: UserCreate) -> User:
             status_code=status.HTTP_409_CONFLICT,
             detail="Пользователь уже зарегестрирован.",
         )
-
+    
+    # модель пользователя 
     user = User(
         phone_number=user.phone_number,
         hashed_password=get_password_hash(user.password),
@@ -45,7 +47,8 @@ async def create_user(db: AsyncSession, user: UserCreate) -> User:
         city=user.city,
         description=user.description
     )
-
+    
+    # добавляет в бд 
     db.add(user)
     await db.commit()
     await db.refresh(user)
@@ -56,5 +59,6 @@ async def register(payload: UserCreate, db: AsyncSession = Depends(get_db)):
     # db_user = User()
     phone_number = payload.phone_number
     
-    user = await create_user(db, payload)
+    # проверяет через create_user
+    user = await create_user(db, payload) 
     return user
