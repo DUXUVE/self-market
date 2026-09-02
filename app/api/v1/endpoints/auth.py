@@ -56,7 +56,6 @@ async def create_user(db: AsyncSession, user: UserCreate) -> User:
 
 @router.post("/register") 
 async def register(payload: UserCreate, db: AsyncSession = Depends(get_db)): 
-    # db_user = User()
     phone_number = payload.phone_number
     
     # проверяет через create_user
