@@ -1,5 +1,8 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
+from typing import AsyncGenerator
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.core.database import AsyncSessionLocal
 from app.core.security import decode_access_token
 from app.services.user_service import get_user_by_username
 from app.schemas.token import TokenData
@@ -47,3 +50,13 @@ async def get_current_active_user(
             detail="Inactive user"
         )
     return current_user
+
+
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
+    """Зависимость для предоставления асинхронной сессии базы данных на каждый запрос."""
+    async with AsyncSessionLocal() as session:
+        try:
+            yield session
+        except Exception:
+            await session.rollback()
+            raise

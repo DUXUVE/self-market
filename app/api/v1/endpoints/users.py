@@ -11,3 +11,5 @@ async def read_users_me(current_user: User = Depends(get_current_active_user)):
     Требует валидный JWT токен в заголовке Authorization.
     """
     return current_user
+
+# Обновление данных пользователя 

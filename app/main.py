@@ -3,12 +3,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.v1.endpoints import auth, users
 
 app = FastAPI(
-    title="FastAPI JWT Auth Demo",
-    description="Пример реализации JWT авторизации на FastAPI",
+    title="",
+    description="",
     version="1.0.0"
 )
 
-# CORS для разработки
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -17,13 +16,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Регистрируем роутеры
-app.include_router(auth.router, prefix="/api/v1")
-app.include_router(users.router, prefix="/api/v1")
+prefix = "/api/v1"
+app.include_router(auth.router, prefix=prefix)
+app.include_router(users.router, prefix=prefix)
 
 @app.get("/")
 async def root():
-    return {"message": "FastAPI JWT Auth Demo. Go to /docs for API documentation"}
+    return {"message": "This page is not in use"}
 
 def start_dev():
     import uvicorn

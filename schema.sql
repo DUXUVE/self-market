@@ -54,3 +54,4 @@ CREATE TABLE "operation" (
     "advertisement_id" BIGINT NOT NULL REFERENCES "advertisement"(id),
     "hours_amount" INTEGER NOT NULL
 )
+
