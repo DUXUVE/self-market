@@ -26,7 +26,7 @@ def create_access_token(data: dict) -> str:
     )
     return encoded_jwt
 
-def decode_access_token(token: str) -> dict:
+def decode_access_token(token: str) -> dict | None:
     """Декодирует токен и возвращает payload, если подпись верна"""
     try:
         payload = jwt.decode(

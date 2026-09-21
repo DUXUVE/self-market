@@ -3,8 +3,8 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import AsyncSessionLocal
-from app.api.v1.dependencies import get_db
-from app.models.models import Order
+from app.api.v1.dependencies import get_current_user, get_db
+from app.models.models import Order, User
 from app.schemas.order import OrderCreate, OrderRead
 
 router = APIRouter()
@@ -13,7 +13,8 @@ router = APIRouter()
 @router.post("/orders", response_model=OrderRead, status_code=status.HTTP_201_CREATED)
 async def create_order(
     order_data: OrderCreate, 
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     new_order = Order(
         category_id=order_data.category_id,
@@ -21,7 +22,7 @@ async def create_order(
         description=order_data.description,
         price=order_data.price,
         city=order_data.city,
-        user_id=order_data.user_id,
+        user_id=current_user.id,
         contractor_id=None,
         desired_date=order_data.desired_date,
         creation_date=datetime.now(timezone.utc)
@@ -37,7 +38,8 @@ async def create_order(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e)
         )
-
+        
+    return new_order
 
 # Получить заказ
 
