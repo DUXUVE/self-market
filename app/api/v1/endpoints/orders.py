@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+import select
 
 from fastapi import APIRouter, HTTPException, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -42,8 +43,37 @@ async def create_order(
     return new_order
 
 # Получить заказ
+@router.get("/orders/{order_id}", response_model=OrderRead)
+async def get_order(
+    order_id: int,
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(Order).where(Order.id == order_id)
+    )
+
+    order = result.scalar_one_or_none()
+
+    if order is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Заказ не найден",
+        )
+
+    return order
 
 # Получить заказы
+@router.get("/orders", response_model=list[OrderRead])
+async def get_orders(
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(Order)
+    )
+
+    orders = result.scalars().all()
+
+    return orders
 
 # Оставить заявку на выполнение
 
