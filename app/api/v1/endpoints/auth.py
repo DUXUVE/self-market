@@ -1,5 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.api.v1.dependencies import get_db
 from app.schemas.token import Token
 from app.schemas.user import UserCreate 
 from app.services.user_service import authenticate_user
@@ -29,9 +32,9 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     
     return Token(access_token=access_token, token_type="bearer")
 
-async def create_user(db: AsyncSession, user: UserCreate) -> User:
+async def create_user(db: AsyncSession =Depends(get_db), user: UserCreate=Depends()) -> User:
     # по номеру телефона проверяет зарегестрирован пользователь/нет
-    result = await db.execute(select(User).where(User.phone_number == phone_number))
+    result = await db.execute(select(User).where(User.phone_number == user.phone_number))
     exists = result.scalar_one_or_none()
     if exists:
         raise HTTPException(
@@ -40,7 +43,7 @@ async def create_user(db: AsyncSession, user: UserCreate) -> User:
         )
     
     # модель пользователя 
-    user = User(
+    new_user = User(
         phone_number=user.phone_number,
         hashed_password=get_password_hash(user.password),
         name=user.name,
@@ -49,10 +52,10 @@ async def create_user(db: AsyncSession, user: UserCreate) -> User:
     )
     
     # добавляет в бд 
-    db.add(user)
+    db.add(new_user)
     await db.commit()
-    await db.refresh(user)
-    return user
+    await db.refresh(new_user)
+    return new_user
 
 @router.post("/register") 
 async def register(payload: UserCreate, db: AsyncSession = Depends(get_db)): 

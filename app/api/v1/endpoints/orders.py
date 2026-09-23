@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
-import select
 
 from fastapi import APIRouter, HTTPException, status, Depends
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import AsyncSessionLocal
 from app.api.v1.dependencies import get_current_user, get_db
@@ -39,8 +39,7 @@ async def create_order(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e)
         )
-        
-    return new_order
+
 
 # Получить заказ
 @router.get("/orders/{order_id}", response_model=OrderRead)
@@ -76,8 +75,81 @@ async def get_orders(
     return orders
 
 # Оставить заявку на выполнение
+@router.post("/orders/{order_id}/apply", response_model=OrderRead)
+async def apply_to_order(
+    order_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    result = await db.execute(
+        select(Order).where(Order.id == order_id)
+    )
+    order = result.scalar_one_or_none()
+
+    if order is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Заказ не найден",
+        )
+
+    if order.user_id == current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Нельзя оставить заявку на свой заказ",
+        )
+
+    if order.contractor_id is not None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="На этот заказ уже назначен исполнитель",
+        )
+
+    order.contractor_id = current_user.id
+
+    try:
+        await db.commit()
+        await db.refresh(order)
+        return order
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
 
 # Посмотреть заявки на заказе
+@router.get("/orders/{order_id}/applications", response_model=list[OrderResponseRead])
+async def get_order_applications(
+    order_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    # Проверяем, что заказ существует
+    result = await db.execute(
+        select(Order).where(Order.id == order_id)
+    )
+    order = result.scalar_one_or_none()
+
+    if order is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Заказ не найден",
+        )
+
+    # Доступ к заявкам имеет только владелец заказа
+    if order.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Нет доступа к заявкам этого заказа",
+        )
+
+    # Получаем все заявки по заказу
+    result = await db.execute(
+        select(OrderResponse).where(OrderResponse.order_id == order_id)
+    )
+    applications = result.scalars().all()
+
+    return applications
 
 # Начать чат по заказу 
 
