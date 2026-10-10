@@ -138,4 +138,22 @@ async def read_user_profile(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Пользователь не найден",
         )
-    return await add_rating_summary(db, user)
+    profile = await add_rating_summary(db, user)
+    first_service_result = await db.execute(
+        select(Service)
+        .where(Service.user_id == user.id)
+        .order_by(Service.id)
+        .limit(1)
+    )
+    first_service = first_service_result.scalar_one_or_none()
+    profile["first_service"] = (
+        {
+            "id": first_service.id,
+            "title": first_service.title,
+            "category_id": first_service.category_id,
+            "price": first_service.price,
+        }
+        if first_service is not None
+        else None
+    )
+    return profile
