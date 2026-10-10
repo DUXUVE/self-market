@@ -20,6 +20,7 @@ class User(Base):
     city: Mapped[str] = mapped_column(String(255), nullable=False)
     avatar_link: Mapped[str] = mapped_column(String(1023), nullable=True)
     description: Mapped[str] = mapped_column(Text, nullable=False)
+    balance_minutes: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
     
     reviews: Mapped[List["Review"]] = relationship(back_populates="user")
     
