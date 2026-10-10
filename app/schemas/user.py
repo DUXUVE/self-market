@@ -12,13 +12,12 @@ class UserCreate(BaseModel):
 
 class User(BaseModel):
     id: int
-    is_active: bool = True
+    phone_number: str
+    name: str
+    city: str
+    avatar_link: str | None = None
+    description: str | None = None
 
     class Config:
         from_attributes = True
-
-
-class UserInDB(User):
-    username: str
-    email: str
-    hashed_password: str
+        

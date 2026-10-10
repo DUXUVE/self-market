@@ -1,6 +1,5 @@
 import asyncio
 from logging.config import fileConfig
-from pathlib import Path
 from alembic import context
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection

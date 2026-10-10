@@ -63,23 +63,88 @@ class Category(Base):
 class Order(Base):
     __tablename__ = "order"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
-    category_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("category.id"), nullable=False)
-    title: Mapped[str] = mapped_column(String(255), nullable=False)
-    description: Mapped[str] = mapped_column(Text, nullable=False)
-    price: Mapped[int] = mapped_column(Integer, nullable=False)
-    city: Mapped[str] = mapped_column(String(255), nullable=False)
-    user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("user.id"), nullable=False)
-    contractor_id: Mapped[Optional[int]] = mapped_column(BigInteger, ForeignKey("user.id"), nullable=True)
-    desired_date: Mapped[Optional[datetime]] = mapped_column(TIMESTAMP, nullable=True)
-    creation_date: Mapped[datetime] = mapped_column(TIMESTAMP, nullable=False)
+    id: Mapped[int] = mapped_column(
+        BigInteger,
+        primary_key=True,
+        autoincrement=True,
+    )
 
-    category: Mapped["Category"] = relationship(back_populates="orders")
-    owner: Mapped["User"] = relationship("User", foreign_keys=[user_id], back_populates="orders_as_owner")
-    contractor: Mapped[Optional["User"]] = relationship("User", foreign_keys=[contractor_id], back_populates="orders_as_contractor")
-    chats: Mapped[List["Chat"]] = relationship(back_populates="order")
-    operations: Mapped[List["Operation"]] = relationship(back_populates="order")
+    type: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+    )
 
+    category_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey("category.id"),
+        nullable=False,
+    )
+
+    title: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False,
+    )
+
+    description: Mapped[str] = mapped_column(
+        Text,
+        nullable=False,
+    )
+
+    price: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+    )
+
+    city: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False,
+    )
+
+    user_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey("user.id"),
+        nullable=False,
+    )
+
+    contractor_id: Mapped[Optional[int]] = mapped_column(
+        BigInteger,
+        ForeignKey("user.id"),
+        nullable=True,
+    )
+
+    desired_date: Mapped[Optional[datetime]] = mapped_column(
+        TIMESTAMP,
+        nullable=True,
+    )
+
+    creation_date: Mapped[datetime] = mapped_column(
+        TIMESTAMP,
+        nullable=False,
+    )
+
+    category: Mapped["Category"] = relationship(
+        back_populates="orders"
+    )
+
+    owner: Mapped["User"] = relationship(
+        "User",
+        foreign_keys=[user_id],
+        back_populates="orders_as_owner",
+    )
+
+    contractor: Mapped["User"] = relationship(
+        "User",
+        foreign_keys=[contractor_id],
+        back_populates="orders_as_contractor",
+    )
+
+    chats: Mapped[List["Chat"]] = relationship(
+        back_populates="order"
+    )
+
+    operations: Mapped[List["Operation"]] = relationship(
+        back_populates="order"
+    )
 
 class Chat(Base):
     __tablename__ = "chat"
@@ -117,4 +182,3 @@ class Operation(Base):
     sender: Mapped["User"] = relationship("User", foreign_keys=[sender_id], back_populates="operations_as_sender")
     user_rel: Mapped["User"] = relationship("User", foreign_keys=[user_id], back_populates="operations_as_user")
     order: Mapped["Order"] = relationship(back_populates="operations")
-    
