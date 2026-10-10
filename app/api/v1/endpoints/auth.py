@@ -93,4 +93,5 @@ async def register(
         "city": user.city,
         "avatar_link": user.avatar_link,
         "description": user.description,
+        "balance_minutes": user.balance_minutes,
     }
