@@ -23,6 +23,9 @@ class User(Base):
     balance_minutes: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
 
     reviews: Mapped[List["Review"]] = relationship(back_populates="user")
+    reviews_written: Mapped[List["Review"]] = relationship(
+        "Review", foreign_keys="[Review.reviewer_id]", back_populates="reviewer"
+    )
 
     orders_as_owner: Mapped[List["Order"]] = relationship(
         "Order", foreign_keys="[Order.user_id]", back_populates="owner"
@@ -49,8 +52,12 @@ class Review(Base):
     comment: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     rate: Mapped[int] = mapped_column(Integer, nullable=False)
     user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("user.id"), nullable=False)
+    reviewer_id: Mapped[Optional[int]] = mapped_column(BigInteger, ForeignKey("user.id"), nullable=True)
+    order_id: Mapped[Optional[int]] = mapped_column(BigInteger, ForeignKey("order.id"), nullable=True, unique=True)
 
-    user: Mapped["User"] = relationship(back_populates="reviews")
+    user: Mapped["User"] = relationship("User", foreign_keys=[user_id], back_populates="reviews")
+    reviewer: Mapped[Optional["User"]] = relationship("User", foreign_keys=[reviewer_id], back_populates="reviews_written")
+    order: Mapped[Optional["Order"]] = relationship("Order", back_populates="review")
 
 
 class Category(Base):
@@ -83,6 +90,7 @@ class Order(Base):
     chats: Mapped[List["Chat"]] = relationship(back_populates="order")
     operations: Mapped[List["Operation"]] = relationship(back_populates="order")
     applications: Mapped[List["OrderApplication"]] = relationship(back_populates="order")
+    review: Mapped[Optional["Review"]] = relationship(back_populates="order", uselist=False)
 
 
 class OrderApplication(Base):
