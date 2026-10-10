@@ -11,5 +11,8 @@ class OperationRead(BaseModel):
     hours_amount: int
     status: str
     created_at: datetime
+    sender_name: str
+    receiver_name: str
+    order_title: str
 
     model_config = ConfigDict(from_attributes=True)
