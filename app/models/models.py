@@ -28,6 +28,7 @@ class User(Base):
     reviews_written: Mapped[List["Review"]] = relationship(
         "Review", foreign_keys="[Review.reviewer_id]", back_populates="reviewer"
     )
+    services: Mapped[List["Service"]] = relationship(back_populates="user")
 
     orders_as_owner: Mapped[List["Order"]] = relationship(
         "Order", foreign_keys="[Order.user_id]", back_populates="owner"
@@ -70,6 +71,22 @@ class Category(Base):
     title: Mapped[str] = mapped_column(String(255), nullable=False)
 
     orders: Mapped[List["Order"]] = relationship(back_populates="category")
+    services: Mapped[List["Service"]] = relationship(back_populates="category")
+
+
+class Service(Base):
+    """Услуга, которую пользователь предлагает другим участникам."""
+    __tablename__ = "service"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("user.id"), nullable=False)
+    category_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("category.id"), nullable=False)
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    description: Mapped[str] = mapped_column(Text, nullable=False)
+    price: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    user: Mapped["User"] = relationship(back_populates="services")
+    category: Mapped["Category"] = relationship(back_populates="services")
 
 
 class Order(Base):
