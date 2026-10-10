@@ -8,7 +8,13 @@ from app.models.models import User
 
 def normalize_phone_number(phone_number: str) -> str:
     """Приводит номер телефона к единому формату."""
-    phone = parse(phone_number, None)
+    # Pydantic's PhoneNumber may be rendered as "tel:+..." (RFC3966).
+    # phonenumbers.parse expects the number itself, without the "tel:" prefix.
+    normalized_input = phone_number.strip()
+    if normalized_input.lower().startswith("tel:"):
+        normalized_input = normalized_input[4:]
+
+    phone = parse(normalized_input, None)
     return format_number(phone, PhoneNumberFormat.RFC3966)
 
 
