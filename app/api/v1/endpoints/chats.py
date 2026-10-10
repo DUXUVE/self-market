@@ -174,29 +174,30 @@ async def get_my_chats(
     current_user: User = Depends(get_current_user),
 ):
     """Возвращает чаты заказов, к которым имеет доступ текущий пользователь."""
-    owned_orders = select(Order.id).where(
-        (Order.user_id == current_user.id) | (Order.contractor_id == current_user.id)
-    )
-    applied_orders = select(OrderApplication.order_id).where(
-        OrderApplication.user_id == current_user.id
+    owned_orders = select(Order.id).where(Order.user_id == current_user.id)
+    participant_orders = select(Order.id).where(
+        (Order.contractor_id == current_user.id)
+        | (
+            Order.id.in_(
+                select(OrderApplication.order_id).where(
+                    OrderApplication.user_id == current_user.id
+                )
+            )
+        )
     )
     result = await db.execute(
         select(Chat)
-        .where((Chat.order_id.in_(owned_orders)) | (Chat.order_id.in_(applied_orders)))
+        .where(
+            Chat.order_id.in_(owned_orders)
+            | (
+                Chat.order_id.in_(participant_orders)
+                & (Chat.sender_id == current_user.id)
+            )
+        )
         .order_by(Chat.id.desc())
     )
     chats = result.scalars().all()
-
     accessible = []
-    for chat in chats:
-        order_result = await db.execute(select(Order).where(Order.id == chat.order_id))
-        order = order_result.scalar_one_or_none()
-        if order is None:
-            continue
-        if order.contractor_id is not None and order.contractor_id != current_user.id:
-            if order.user_id != current_user.id:
-                continue
-        accessible.append(chat)
     return accessible
 
 
