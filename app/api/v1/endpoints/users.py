@@ -77,7 +77,8 @@ async def search_helpers(
     """Ищет пользователей с услугами по категории, городу и минимальному рейтингу."""
     # В результатах поиска должны быть именно исполнители, у которых есть услуги.
     query = select(UserModel).where(
-        UserModel.id.in_(select(Service.user_id))
+        UserModel.id.in_(select(Service.user_id)),
+        UserModel.id != current_user.id,
     ).order_by(UserModel.id)
 
     if city and city.strip():
@@ -99,11 +100,13 @@ async def search_helpers(
         if min_rating is not None and profile["rating_average"] < min_rating:
             continue
 
+        first_service_query = select(Service).where(Service.user_id == user.id)
+        if category_id is not None:
+            first_service_query = first_service_query.where(
+                Service.category_id == category_id
+            )
         first_service_result = await db.execute(
-            select(Service)
-            .where(Service.user_id == user.id)
-            .order_by(Service.id)
-            .limit(1)
+            first_service_query.order_by(Service.id).limit(1)
         )
         first_service = first_service_result.scalar_one_or_none()
         profile["first_service"] = (
