@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from pydantic_extra_types.phone_numbers import PhoneNumber
 
 
@@ -7,6 +7,13 @@ class UserCreate(BaseModel):
     password: str
     name: str
     city: str
+    description: str | None = None
+
+
+class UserUpdate(BaseModel):
+    name: str | None = Field(default=None, min_length=1, max_length=255)
+    city: str | None = Field(default=None, min_length=1, max_length=255)
+    avatar_link: str | None = Field(default=None, max_length=1023)
     description: str | None = None
 
 
@@ -23,4 +30,3 @@ class User(BaseModel):
 
     class Config:
         from_attributes = True
-        
