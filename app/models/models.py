@@ -22,7 +22,9 @@ class User(Base):
     description: Mapped[str] = mapped_column(Text, nullable=False)
     balance_minutes: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
 
-    reviews: Mapped[List["Review"]] = relationship(back_populates="user")
+    reviews: Mapped[List["Review"]] = relationship(
+        "Review", foreign_keys="[Review.user_id]", back_populates="user"
+    )
     reviews_written: Mapped[List["Review"]] = relationship(
         "Review", foreign_keys="[Review.reviewer_id]", back_populates="reviewer"
     )
