@@ -17,6 +17,7 @@ class User(BaseModel):
     city: str
     avatar_link: str | None = None
     description: str | None = None
+    balance_minutes: int = 0
 
     class Config:
         from_attributes = True
