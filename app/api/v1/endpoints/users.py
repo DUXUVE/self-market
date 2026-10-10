@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.v1.dependencies import get_current_active_user, get_current_user, get_db
 from app.models.models import Review, User as UserModel
-from app.schemas.user import User as UserSchema
+from app.schemas.user import User as UserSchema, UserUpdate
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -35,6 +35,24 @@ async def read_users_me(
     db: AsyncSession = Depends(get_db),
 ):
     """Возвращает профиль текущего пользователя со средним рейтингом и числом отзывов."""
+    return await add_rating_summary(db, current_user)
+
+
+@router.patch("/me", response_model=UserSchema)
+async def update_users_me(
+    profile_data: UserUpdate,
+    current_user: UserModel = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Обновляет данные профиля текущего пользователя."""
+    changes = profile_data.model_dump(exclude_unset=True)
+
+    for field, value in changes.items():
+        if value is not None:
+            setattr(current_user, field, value)
+
+    await db.commit()
+    await db.refresh(current_user)
     return await add_rating_summary(db, current_user)
 
 
