@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.v1.dependencies import get_current_user, get_db
-from app.models.models import Chat, Order, OrderApplication, Operation, User
+from app.models.models import Category, Chat, Order, OrderApplication, Operation, User
 from app.schemas.order import OrderApplicationRead, OrderCreate, OrderRead
 
 router = APIRouter()
@@ -22,7 +22,19 @@ async def create_order(
     current_user: User = Depends(get_current_user),
 ):
     if order_data.price <= 0:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Цена должна быть больше нуля")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Цена должна быть больше нуля",
+        )
+
+    category_result = await db.execute(
+        select(Category).where(Category.id == order_data.category_id)
+    )
+    if category_result.scalar_one_or_none() is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Категория не найдена",
+        )
 
     new_order = Order(
         type=order_data.type,
