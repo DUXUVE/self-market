@@ -1,4 +1,3 @@
-
 from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -6,8 +5,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.v1.dependencies import get_current_user, get_db
-from app.models.models import Order, User
-from app.schemas.order import OrderCreate, OrderRead
+from app.models.models import Order, OrderApplication, User
+from app.schemas.order import OrderApplicationRead, OrderCreate, OrderRead
 
 router = APIRouter()
 
@@ -55,9 +54,7 @@ async def get_order(
     order_id: int,
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(
-        select(Order).where(Order.id == order_id)
-    )
+    result = await db.execute(select(Order).where(Order.id == order_id))
     order = result.scalar_one_or_none()
 
     if order is None:
@@ -71,23 +68,24 @@ async def get_order(
 
 # Получить все заказы
 @router.get("/orders", response_model=list[OrderRead])
-async def get_orders(
-    db: AsyncSession = Depends(get_db),
-):
+async def get_orders(db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Order))
     return result.scalars().all()
 
 
-# Оставить заявку на выполнение
-@router.post("/orders/{order_id}/apply", response_model=OrderRead)
+# Оставить отклик на выполнение открытого заказа.
+# Отклик хранится отдельно и не назначает исполнителя автоматически.
+@router.post(
+    "/orders/{order_id}/apply",
+    response_model=OrderApplicationRead,
+    status_code=status.HTTP_201_CREATED,
+)
 async def apply_to_order(
     order_id: int,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    result = await db.execute(
-        select(Order).where(Order.id == order_id)
-    )
+    result = await db.execute(select(Order).where(Order.id == order_id))
     order = result.scalar_one_or_none()
 
     if order is None:
@@ -108,21 +106,32 @@ async def apply_to_order(
             detail="На этот заказ уже назначен исполнитель",
         )
 
-    order.contractor_id = current_user.id
+    existing_result = await db.execute(
+        select(OrderApplication).where(
+            OrderApplication.order_id == order_id,
+            OrderApplication.user_id == current_user.id,
+        )
+    )
+    if existing_result.scalar_one_or_none() is not None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Вы уже откликнулись на этот заказ",
+        )
+
+    application = OrderApplication(
+        order_id=order_id,
+        user_id=current_user.id,
+        status="pending",
+    )
 
     try:
+        db.add(application)
         await db.commit()
-        await db.refresh(order)
-        return order
-    except Exception as e:
+        await db.refresh(application)
+        return application
+    except Exception:
         await db.rollback()
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e),
+            detail="Не удалось сохранить отклик",
         )
-
-# Начать чат по заказу 
-
-# Подтвердить заявку 
-
-# Подтвердить выполнение заказа
