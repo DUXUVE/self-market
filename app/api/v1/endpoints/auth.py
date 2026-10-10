@@ -8,7 +8,7 @@ from app.core.security import create_access_token, get_password_hash
 from app.models.models import User
 from app.schemas.token import Token
 from app.schemas.user import UserCreate
-from app.services.user_service import authenticate_user, get_user_by_phone
+from app.services.user_service import authenticate_user, get_user_by_phone, normalize_phone_number
 
 
 router = APIRouter(prefix="/auth", tags=["authentication"])
@@ -62,11 +62,12 @@ async def create_user(
         )
 
     user = User(
-        phone_number=str(user_data.phone_number),
+        phone_number=normalize_phone_number(str(user_data.phone_number)),
         hashed_password=get_password_hash(user_data.password),
         name=user_data.name,
         city=user_data.city,
         description=user_data.description or "",
+        balance_minutes=120,
     )
 
     db.add(user)
