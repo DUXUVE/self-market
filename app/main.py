@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.v1.endpoints import auth, users, orders, categories, wallet, reviews
+from app.api.v1.endpoints import auth, users, orders, categories, wallet, reviews, services
 
 app = FastAPI(
     title="Self Market API",
@@ -23,6 +23,7 @@ app.include_router(orders.router, prefix=prefix)
 app.include_router(categories.router, prefix=prefix)
 app.include_router(wallet.router, prefix=prefix)
 app.include_router(reviews.router, prefix=prefix)
+app.include_router(services.router, prefix=prefix)
 
 @app.get("/")
 async def root():
