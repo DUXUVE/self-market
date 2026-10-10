@@ -31,19 +31,26 @@ async def get_chat_for_participant(
             detail="Заказ не найден",
         )
 
-    if order.user_id == current_user.id or order.contractor_id == current_user.id:
+    if order.user_id == current_user.id:
+        return chat
+
+    if chat.sender_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="У вас нет доступа к этому чату",
+        )
+
+    if order.contractor_id == current_user.id:
         return chat
 
     application_result = await db.execute(
         select(OrderApplication).where(
             OrderApplication.order_id == order.id,
             OrderApplication.user_id == current_user.id,
+            OrderApplication.status == "pending",
         )
     )
-    application = application_result.scalar_one_or_none()
-    if application is not None and (
-        order.contractor_id is None or order.contractor_id == current_user.id
-    ):
+    if application_result.scalar_one_or_none() is not None and order.contractor_id is None:
         return chat
 
     raise HTTPException(
@@ -59,10 +66,11 @@ async def get_chat_for_participant(
 )
 async def get_or_create_order_chat(
     order_id: int,
+    participant_id: int | None = None,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Открывает общий чат заказа или создаёт его при первом обращении."""
+    """Открывает отдельный чат заказчика с выбранным исполнителем."""
     order_result = await db.execute(select(Order).where(Order.id == order_id))
     order = order_result.scalar_one_or_none()
     if order is None:
@@ -71,33 +79,74 @@ async def get_or_create_order_chat(
             detail="Заказ не найден",
         )
 
-    is_owner_or_contractor = (
-        order.user_id == current_user.id or order.contractor_id == current_user.id
-    )
-    application_result = await db.execute(
-        select(OrderApplication).where(
-            OrderApplication.order_id == order_id,
-            OrderApplication.user_id == current_user.id,
+    if order.user_id == current_user.id:
+        # Заказчик должен выбрать конкретного откликнувшегося исполнителя.
+        target_user_id = participant_id or order.contractor_id
+        if target_user_id is None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Укажите participant_id — ID исполнителя, откликнувшегося на заказ",
+            )
+        if target_user_id == current_user.id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Нельзя открыть чат с самим собой",
+            )
+        if order.contractor_id is not None and order.contractor_id != target_user_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="У заказа уже выбран другой исполнитель",
+            )
+        application_result = await db.execute(
+            select(OrderApplication).where(
+                OrderApplication.order_id == order_id,
+                OrderApplication.user_id == target_user_id,
+                OrderApplication.status.in_(["pending", "accepted"]),
+            )
+        )
+        if order.contractor_id != target_user_id and application_result.scalar_one_or_none() is None:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Пользователь не откликался на этот заказ",
+            )
+    else:
+        if participant_id is not None and participant_id != current_user.id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Исполнитель может открыть только свой чат",
+            )
+        is_contractor = order.contractor_id == current_user.id
+        application_result = await db.execute(
+            select(OrderApplication).where(
+                OrderApplication.order_id == order_id,
+                OrderApplication.user_id == current_user.id,
+                OrderApplication.status == "pending",
+            )
+        )
+        is_applicant = application_result.scalar_one_or_none() is not None
+        if not is_contractor and not is_applicant:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Чат доступен только участникам заказа",
+            )
+        if order.contractor_id is not None and not is_contractor:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="У заказа уже выбран другой исполнитель",
+            )
+        target_user_id = current_user.id
+
+    chat_result = await db.execute(
+        select(Chat).where(
+            Chat.order_id == order_id,
+            Chat.sender_id == target_user_id,
         )
     )
-    application = application_result.scalar_one_or_none()
-    is_allowed_applicant = (
-        application is not None
-        and (order.contractor_id is None or order.contractor_id == current_user.id)
-    )
-
-    if not is_owner_or_contractor and not is_allowed_applicant:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Чат доступен заказчику, исполнителю и откликнувшимся исполнителям",
-        )
-
-    chat_result = await db.execute(select(Chat).where(Chat.order_id == order_id))
     chat = chat_result.scalar_one_or_none()
     if chat is not None:
         return chat
 
-    chat = Chat(order_id=order_id, sender_id=current_user.id)
+    chat = Chat(order_id=order_id, sender_id=target_user_id)
     db.add(chat)
     try:
         await db.commit()
@@ -105,8 +154,12 @@ async def get_or_create_order_chat(
         return chat
     except Exception:
         await db.rollback()
-        # A concurrent request may have created the chat first.
-        chat_result = await db.execute(select(Chat).where(Chat.order_id == order_id))
+        chat_result = await db.execute(
+            select(Chat).where(
+                Chat.order_id == order_id,
+                Chat.sender_id == target_user_id,
+            )
+        )
         chat = chat_result.scalar_one_or_none()
         if chat is not None:
             return chat
@@ -114,7 +167,6 @@ async def get_or_create_order_chat(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Не удалось открыть чат",
         )
-
 
 @router.get("", response_model=list[ChatRead])
 async def get_my_chats(
