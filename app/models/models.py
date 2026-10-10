@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import List, Optional
-from sqlalchemy import BigInteger, Boolean, ForeignKey, Integer, String, Text, TIMESTAMP
+from sqlalchemy import BigInteger, Boolean, DateTime, ForeignKey, Integer, String, Text, TIMESTAMP, UniqueConstraint, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -21,19 +21,20 @@ class User(Base):
     avatar_link: Mapped[str] = mapped_column(String(1023), nullable=True)
     description: Mapped[str] = mapped_column(Text, nullable=False)
     balance_minutes: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
-    
+
     reviews: Mapped[List["Review"]] = relationship(back_populates="user")
-    
+
     orders_as_owner: Mapped[List["Order"]] = relationship(
         "Order", foreign_keys="[Order.user_id]", back_populates="owner"
     )
     orders_as_contractor: Mapped[List["Order"]] = relationship(
         "Order", foreign_keys="[Order.contractor_id]", back_populates="contractor"
     )
-    
+
     chats: Mapped[List["Chat"]] = relationship(back_populates="sender")
     messages: Mapped[List["Message"]] = relationship(back_populates="user")
-    
+    applications: Mapped[List["OrderApplication"]] = relationship(back_populates="user")
+
     operations_as_sender: Mapped[List["Operation"]] = relationship(
         "Operation", foreign_keys="[Operation.sender_id]", back_populates="sender"
     )
@@ -43,7 +44,7 @@ class User(Base):
 
 
 class Review(Base):
-    __tablename__ = "review" 
+    __tablename__ = "review"
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
     comment: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     rate: Mapped[int] = mapped_column(Integer, nullable=False)
@@ -64,88 +65,42 @@ class Category(Base):
 class Order(Base):
     __tablename__ = "order"
 
-    id: Mapped[int] = mapped_column(
-        BigInteger,
-        primary_key=True,
-        autoincrement=True,
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    type: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    category_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("category.id"), nullable=False)
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    description: Mapped[str] = mapped_column(Text, nullable=False)
+    price: Mapped[int] = mapped_column(Integer, nullable=False)
+    city: Mapped[str] = mapped_column(String(255), nullable=False)
+    user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("user.id"), nullable=False)
+    contractor_id: Mapped[Optional[int]] = mapped_column(BigInteger, ForeignKey("user.id"), nullable=True)
+    desired_date: Mapped[Optional[datetime]] = mapped_column(TIMESTAMP, nullable=True)
+    creation_date: Mapped[datetime] = mapped_column(TIMESTAMP, nullable=False)
+
+    category: Mapped["Category"] = relationship(back_populates="orders")
+    owner: Mapped["User"] = relationship("User", foreign_keys=[user_id], back_populates="orders_as_owner")
+    contractor: Mapped[Optional["User"]] = relationship("User", foreign_keys=[contractor_id], back_populates="orders_as_contractor")
+    chats: Mapped[List["Chat"]] = relationship(back_populates="order")
+    operations: Mapped[List["Operation"]] = relationship(back_populates="order")
+    applications: Mapped[List["OrderApplication"]] = relationship(back_populates="order")
+
+
+class OrderApplication(Base):
+    """Отклик исполнителя на открытый заказ; сам по себе не назначает исполнителя."""
+    __tablename__ = "order_application"
+    __table_args__ = (
+        UniqueConstraint("order_id", "user_id", name="uq_order_application_order_user"),
     )
 
-    type: Mapped[bool] = mapped_column(
-        Boolean,
-        nullable=False,
-    )
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    order_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("order.id"), nullable=False)
+    user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("user.id"), nullable=False)
+    status: Mapped[str] = mapped_column(String(20), nullable=False, default="pending", server_default="pending")
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now())
 
-    category_id: Mapped[int] = mapped_column(
-        BigInteger,
-        ForeignKey("category.id"),
-        nullable=False,
-    )
+    order: Mapped["Order"] = relationship(back_populates="applications")
+    user: Mapped["User"] = relationship(back_populates="applications")
 
-    title: Mapped[str] = mapped_column(
-        String(255),
-        nullable=False,
-    )
-
-    description: Mapped[str] = mapped_column(
-        Text,
-        nullable=False,
-    )
-
-    price: Mapped[int] = mapped_column(
-        Integer,
-        nullable=False,
-    )
-
-    city: Mapped[str] = mapped_column(
-        String(255),
-        nullable=False,
-    )
-
-    user_id: Mapped[int] = mapped_column(
-        BigInteger,
-        ForeignKey("user.id"),
-        nullable=False,
-    )
-
-    contractor_id: Mapped[Optional[int]] = mapped_column(
-        BigInteger,
-        ForeignKey("user.id"),
-        nullable=True,
-    )
-
-    desired_date: Mapped[Optional[datetime]] = mapped_column(
-        TIMESTAMP,
-        nullable=True,
-    )
-
-    creation_date: Mapped[datetime] = mapped_column(
-        TIMESTAMP,
-        nullable=False,
-    )
-
-    category: Mapped["Category"] = relationship(
-        back_populates="orders"
-    )
-
-    owner: Mapped["User"] = relationship(
-        "User",
-        foreign_keys=[user_id],
-        back_populates="orders_as_owner",
-    )
-
-    contractor: Mapped["User"] = relationship(
-        "User",
-        foreign_keys=[contractor_id],
-        back_populates="orders_as_contractor",
-    )
-
-    chats: Mapped[List["Chat"]] = relationship(
-        back_populates="order"
-    )
-
-    operations: Mapped[List["Operation"]] = relationship(
-        back_populates="order"
-    )
 
 class Chat(Base):
     __tablename__ = "chat"
