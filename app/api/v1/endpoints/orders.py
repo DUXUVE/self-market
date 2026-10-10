@@ -57,8 +57,23 @@ async def get_order(order_id: int, db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/orders", response_model=list[OrderRead])
-async def get_orders(db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(Order))
+async def get_orders(
+    category_id: int | None = None,
+    city: str | None = None,
+    open_only: bool = False,
+    db: AsyncSession = Depends(get_db),
+):
+    """Возвращает заказы с необязательными фильтрами по категории, городу и открытости."""
+    query = select(Order).order_by(Order.creation_date.desc())
+
+    if category_id is not None:
+        query = query.where(Order.category_id == category_id)
+    if city:
+        query = query.where(Order.city.ilike(f"%{city.strip()}%"))
+    if open_only:
+        query = query.where(Order.contractor_id.is_(None))
+
+    result = await db.execute(query)
     return result.scalars().all()
 
 
@@ -168,7 +183,6 @@ async def accept_order(
                 detail=f"Недостаточно минут. Нужно: {price_minutes}, доступно: {customer.balance_minutes}",
             )
 
-        # Не допускаем повторного списания, если для заказа уже есть операция оплаты.
         operation_result = await db.execute(
             select(Operation).where(Operation.order_id == order_id)
         )
@@ -207,7 +221,7 @@ async def accept_order(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Не удалось принять заказ и заморозить минуты")
 
 
-# Исполнитель сообщает, что выполнил заказ. Деньги пока остаются замороженными.
+# Исполнитель сообщает, что выполнил заказ. Минуты остаются замороженными.
 @router.post("/orders/{order_id}/complete", response_model=OrderRead)
 async def mark_order_complete(
     order_id: int,
