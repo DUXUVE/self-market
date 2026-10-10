@@ -134,6 +134,8 @@ class Operation(Base):
     user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("user.id"), nullable=False)
     order_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("order.id"), nullable=False)
     hours_amount: Mapped[int] = mapped_column(Integer, nullable=False)
+    status: Mapped[str] = mapped_column(String(30), nullable=False, default="completed", server_default="completed")
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now())
 
     sender: Mapped["User"] = relationship("User", foreign_keys=[sender_id], back_populates="operations_as_sender")
     user_rel: Mapped["User"] = relationship("User", foreign_keys=[user_id], back_populates="operations_as_user")
