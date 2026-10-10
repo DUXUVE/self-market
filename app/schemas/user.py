@@ -27,6 +27,7 @@ class User(BaseModel):
     balance_minutes: int = 0
     rating_average: float = 0.0
     reviews_count: int = 0
+    total_hours_worked: int = 0
 
     class Config:
         from_attributes = True
