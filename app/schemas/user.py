@@ -18,6 +18,7 @@ class UserUpdate(BaseModel):
 
 
 class User(BaseModel):
+    """Полные данные профиля самого пользователя."""
     id: int
     phone_number: str
     name: str
@@ -31,3 +32,23 @@ class User(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class ServicePreview(BaseModel):
+    id: int
+    title: str
+    category_id: int
+    price: int
+
+
+class UserPublic(BaseModel):
+    """Данные, которые разрешено показывать в публичном профиле."""
+    id: int
+    name: str
+    city: str
+    avatar_link: str | None = None
+    description: str | None = None
+    rating_average: float = 0.0
+    reviews_count: int = 0
+    total_hours_worked: int = 0
+    first_service: ServicePreview | None = None
