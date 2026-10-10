@@ -3,7 +3,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.v1.dependencies import get_current_active_user, get_current_user, get_db
-from app.models.models import Review, Service, User as UserModel
+from app.models.models import Operation, Review, Service, User as UserModel
 from app.schemas.user import User as UserSchema, UserUpdate
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -16,6 +16,15 @@ async def add_rating_summary(db: AsyncSession, user: UserModel) -> dict:
         )
     )
     average, count = result.one()
+
+    hours_result = await db.execute(
+        select(func.coalesce(func.sum(Operation.hours_amount), 0)).where(
+            Operation.user_id == user.id,
+            Operation.status == "completed",
+        )
+    )
+    total_hours = hours_result.scalar_one()
+
     return {
         "id": user.id,
         "phone_number": user.phone_number,
@@ -26,6 +35,7 @@ async def add_rating_summary(db: AsyncSession, user: UserModel) -> dict:
         "balance_minutes": user.balance_minutes,
         "rating_average": round(float(average), 2) if average is not None else 0.0,
         "reviews_count": count,
+        "total_hours_worked": int(total_hours),
     }
 
 
@@ -34,7 +44,7 @@ async def read_users_me(
     current_user: UserModel = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Возвращает профиль текущего пользователя со средним рейтингом и числом отзывов."""
+    """Возвращает профиль текущего пользователя со статистикой."""
     return await add_rating_summary(db, current_user)
 
 
