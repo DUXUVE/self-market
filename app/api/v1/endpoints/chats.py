@@ -197,8 +197,7 @@ async def get_my_chats(
         .order_by(Chat.id.desc())
     )
     chats = result.scalars().all()
-    accessible = []
-    return accessible
+    return chats
 
 
 @router.get("/{chat_id}/messages", response_model=list[MessageRead])
