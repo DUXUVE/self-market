@@ -48,12 +48,13 @@ class User(Base):
 
 class Review(Base):
     __tablename__ = "review"
+    __table_args__ = (UniqueConstraint("order_id", name="uq_review_order_id"),)
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
     comment: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     rate: Mapped[int] = mapped_column(Integer, nullable=False)
     user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("user.id"), nullable=False)
     reviewer_id: Mapped[Optional[int]] = mapped_column(BigInteger, ForeignKey("user.id"), nullable=True)
-    order_id: Mapped[Optional[int]] = mapped_column(BigInteger, ForeignKey("order.id"), nullable=True, unique=True)
+    order_id: Mapped[Optional[int]] = mapped_column(BigInteger, ForeignKey("order.id"), nullable=True)
 
     user: Mapped["User"] = relationship("User", foreign_keys=[user_id], back_populates="reviews")
     reviewer: Mapped[Optional["User"]] = relationship("User", foreign_keys=[reviewer_id], back_populates="reviews_written")
