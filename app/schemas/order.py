@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class OrderCreate(BaseModel):
@@ -26,6 +26,14 @@ class OrderRead(BaseModel):
     desired_date: datetime | None
     creation_date: datetime
 
-    class Config:
-        from_attributes = True
-        
+    model_config = ConfigDict(from_attributes=True)
+
+
+class OrderApplicationRead(BaseModel):
+    id: int
+    order_id: int
+    user_id: int
+    status: str
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
