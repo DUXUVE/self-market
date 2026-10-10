@@ -1,9 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.v1.dependencies import get_current_active_user, get_current_user, get_db
-from app.models.models import Review, User as UserModel
+from app.models.models import Review, Service, User as UserModel
 from app.schemas.user import User as UserSchema, UserUpdate
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -54,6 +54,39 @@ async def update_users_me(
     await db.commit()
     await db.refresh(current_user)
     return await add_rating_summary(db, current_user)
+
+
+@router.get("/search", response_model=list[UserSchema])
+async def search_helpers(
+    city: str | None = None,
+    category_id: int | None = None,
+    min_rating: float | None = Query(default=None, ge=0, le=5),
+    db: AsyncSession = Depends(get_db),
+    current_user: UserModel = Depends(get_current_user),
+):
+    """Ищет исполнителей по городу, категории услуги и минимальному рейтингу."""
+    query = select(UserModel).order_by(UserModel.id)
+
+    if city:
+        query = query.where(UserModel.city.ilike(f"%{city.strip()}%"))
+
+    if category_id is not None:
+        query = query.where(
+            UserModel.id.in_(
+                select(Service.user_id).where(Service.category_id == category_id)
+            )
+        )
+
+    result = await db.execute(query)
+    users = result.scalars().all()
+
+    profiles = []
+    for user in users:
+        profile = await add_rating_summary(db, user)
+        if min_rating is None or profile["rating_average"] >= min_rating:
+            profiles.append(profile)
+
+    return profiles
 
 
 @router.get("/{user_id}", response_model=UserSchema)
