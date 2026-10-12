@@ -120,7 +120,6 @@ async def apply_to_order(
     application = OrderApplication(order_id=order_id, user_id=current_user.id, status="pending")
     try:
         db.add(application)
-        # Create a separate chat for this applicant and the order owner.
         db.add(Chat(order_id=order_id, sender_id=current_user.id))
         await db.commit()
         await db.refresh(application)
