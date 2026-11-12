@@ -54,6 +54,7 @@ export default function ProfilePage() {
         <nav className="main-nav">
           <a href="/">Заказы</a>
           <a href="/services">Услуги</a>
+          <a href="/chats">Сообщения</a>
           <a className="active" href="/profile">Профиль</a>
         </nav>
         <a className="text-button" href="/">На главную</a>
