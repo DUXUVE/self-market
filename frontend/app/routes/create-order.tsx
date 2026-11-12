@@ -58,7 +58,7 @@ export default function CreateOrderPage() {
     <main className="app-shell">
       <header className="topbar">
         <a className="brand" href="/">self<span>.</span>market</a>
-        <nav className="main-nav"><a href="/">Заказы</a><a href="/services">Услуги</a><a href="/profile">Профиль</a></nav>
+        <nav className="main-nav"><a href="/">Заказы</a><a href="/services">Услуги</a><a href="/chats">Сообщения</a><a href="/profile">Профиль</a></nav>
         <a className="text-button" href="/">Назад</a>
       </header>
       <section className="page-intro">
