@@ -6,4 +6,6 @@ export default [
   route("profile", "routes/profile.tsx"),
   route("orders/new", "routes/create-order.tsx"),
   route("orders/:orderId", "routes/order-detail.tsx"),
+  route("chats", "routes/chats.tsx"),
+  route("chats/:chatId", "routes/chat-detail.tsx"),
 ] satisfies RouteConfig;
