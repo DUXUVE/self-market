@@ -176,3 +176,40 @@ export type WalletOperation = {
 export function getWalletOperations(token: string) {
   return request<WalletOperation[]>("/wallet/operations", {}, token);
 }
+
+
+export type PublicUser = {
+  id: number;
+  name: string;
+  city: string;
+  avatar_link: string | null;
+  description: string | null;
+  rating_average: number;
+  reviews_count: number;
+  total_hours_worked: number;
+  first_service: { id: number; title: string; category_id: number; price: number } | null;
+};
+
+export type Review = {
+  id: number;
+  comment: string | null;
+  rate: number;
+  user_id: number;
+  reviewer_id: number | null;
+  order_id: number | null;
+};
+
+export function getPublicUser(userId: number, token: string) {
+  return request<PublicUser>(`/users/${userId}`, {}, token);
+}
+
+export function getUserReviews(userId: number) {
+  return request<Review[]>(`/reviews/users/${userId}`);
+}
+
+export function createReview(orderId: number, rate: number, comment: string, token: string) {
+  return request<Review>(`/reviews/orders/${orderId}`, {
+    method: "POST",
+    body: JSON.stringify({ rate, comment: comment.trim() || null }),
+  }, token);
+}
