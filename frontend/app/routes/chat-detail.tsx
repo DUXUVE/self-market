@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
-import { getChatMessages, getMe, getOrder, sendChatMessage, type ChatMessage, type Order, type User } from "../lib/api";
+import { getChatMessages, getMe, sendChatMessage, type ChatMessage, type User } from "../lib/api";
 
 export function meta() {
   return [{ title: "Переписка — Self Market" }];
@@ -27,8 +27,6 @@ export default function ChatDetailPage() {
       setUser(profile);
       setMessages(chatMessages);
       if (chatMessages.length) {
-        const firstMessage = chatMessages[0];
-        // The order is loaded from the chat list's order link when available.
         setNotice("");
       } else {
         setNotice("Пока нет сообщений. Начните разговор.");
