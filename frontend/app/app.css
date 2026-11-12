@@ -151,3 +151,20 @@ input:focus, select:focus { border-color: #a6b49a; }
 .chat-compose { display: flex; gap: 10px; padding: 16px; border-top: 1px solid #30312c; }
 .chat-compose input { flex: 1; min-width: 0; border: 1px solid #353730; border-radius: 9px; background: #1a1b18; color: #f1f0ed; padding: 13px 14px; outline: none; font: inherit; }
 @media (max-width: 760px) { .chat-list-item { align-items: flex-start; flex-direction: column; } .chat-compose { flex-direction: column; } .chat-message { max-width: 90%; } }
+
+
+.wallet-summary { display: grid; gap: 8px; width: min(100%, 420px); padding: 25px 28px; border: 1px solid #414b37; border-radius: 13px; background: #1b2018; margin-bottom: 42px; }
+.wallet-summary span, .wallet-summary small { color: #a4a69d; font-size: 12px; }
+.wallet-summary strong { color: #dce4d3; font-size: 36px; font-weight: 600; letter-spacing: -1px; }
+.wallet-history { padding-bottom: 70px; max-width: 900px; }
+.operation-list { display: grid; gap: 10px; }
+.operation-item { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 19px 22px; border: 1px solid #30312c; border-radius: 11px; background: #191a17; }
+.operation-main, .operation-value { display: grid; gap: 6px; }
+.operation-main strong { color: #e4e5de; font-size: 14px; font-weight: 600; }
+.operation-main span, .operation-value span { color: #a4a69d; font-size: 12px; }
+.operation-main small { color: #777970; font-size: 11px; }
+.operation-value { text-align: right; }
+.operation-value strong { color: #c6d2b9; font-size: 18px; }
+.wallet-link { display: inline-block; margin-top: 24px; color: #c6d2b9; font-size: 13px; }
+.wallet-link:hover { color: #e0e8d7; }
+@media (max-width: 560px) { .operation-item { align-items: flex-start; flex-direction: column; } .operation-value { text-align: left; } }
