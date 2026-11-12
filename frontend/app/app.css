@@ -76,3 +76,26 @@ input:focus, select:focus { border-color: #a6b49a; }
  .user-menu { gap: 10px; }
  .user-name { display: none; }
 }
+
+
+.main-nav { display: flex; align-items: center; gap: 24px; color: #92948c; font-size: 13px; }
+.main-nav a:hover, .main-nav a.active { color: #c6d2b9; }
+.page-intro { padding: 54px 0 34px; }
+.page-intro h1 { margin: 0; font-size: clamp(36px, 5vw, 52px); letter-spacing: -2px; font-weight: 500; }
+.page-intro .muted { margin: 12px 0 0; }
+.services-layout { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(280px, .8fr); gap: 28px; align-items: start; padding-bottom: 70px; }
+.services-list-section .section-heading { margin-bottom: 18px; }
+.filter-label, .create-service-card label { display: grid; gap: 8px; color: #c7c8c1; font-size: 13px; }
+.filter-label { max-width: 280px; margin-bottom: 20px; }
+.filter-label select, .create-service-card select, .create-service-card textarea { width: 100%; border: 1px solid #353730; border-radius: 9px; background: #1a1b18; color: #f1f0ed; padding: 13px 14px; outline: none; font: inherit; }
+.create-service-card { border: 1px solid #34392e; border-radius: 13px; background: #191c17; padding: 24px; }
+.create-service-card h2 { margin: 0; font-size: 23px; font-weight: 500; letter-spacing: -.7px; }
+.create-service-card .muted { font-size: 13px; }
+.create-service-card .auth-form { margin-top: 22px; }
+.create-service-card textarea { resize: vertical; min-height: 100px; }
+.small-note { font-size: 12px; }
+@media (max-width: 760px) {
+  .services-layout { grid-template-columns: 1fr; }
+  .main-nav { gap: 14px; }
+  .topbar { gap: 12px; }
+}
