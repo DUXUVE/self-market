@@ -74,6 +74,7 @@ export default function ProfilePage() {
             <div className="avatar-placeholder">{user.name.trim().charAt(0).toUpperCase()}</div>
             <h2>{user.name}</h2>
             <p className="muted">{user.city}</p>
+            <a className="wallet-link" href="/wallet">Баланс и история операций →</a>
             <div className="profile-stats">
               <div><strong>{(user.balance_minutes / 60).toFixed(1)}</strong><span>часов на балансе</span></div>
               <div><strong>{user.rating_average.toFixed(1)}</strong><span>средний рейтинг</span></div>
