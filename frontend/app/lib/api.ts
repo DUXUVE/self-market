@@ -95,6 +95,20 @@ export function getOrders(city = "", categoryId = "") {
   return request<Order[]>(`/orders?${params.toString()}`);
 }
 
+export function getOrder(orderId: number) {
+  return request<Order>(`/orders/${orderId}`);
+}
+
+export function createOrder(
+  data: { type: boolean; category_id: number; title: string; description: string; price: number; city: string; desired_date: string | null },
+  token: string,
+) {
+  return request<Order>("/orders", {
+    method: "POST",
+    body: JSON.stringify(data),
+  }, token);
+}
+
 export function applyToOrder(orderId: number, token: string) {
   return request(`/orders/${orderId}/apply`, { method: "POST" }, token);
 }
