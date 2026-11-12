@@ -139,3 +139,22 @@ export function updateMe(
     body: JSON.stringify(data),
   }, token);
 }
+
+
+export type Chat = { id: number; order_id: number; sender_id: number };
+export type ChatMessage = { id: number; message_text: string; user_id: number; chat_id: number };
+
+export function getChats(token: string) {
+  return request<Chat[]>("/chats", {}, token);
+}
+
+export function getChatMessages(chatId: number, token: string) {
+  return request<ChatMessage[]>(`/chats/${chatId}/messages`, {}, token);
+}
+
+export function sendChatMessage(chatId: number, messageText: string, token: string) {
+  return request<ChatMessage>(`/chats/${chatId}/messages`, {
+    method: "POST",
+    body: JSON.stringify({ message_text: messageText }),
+  }, token);
+}
