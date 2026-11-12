@@ -56,7 +56,7 @@ export default function OrderDetailPage() {
     <main className="app-shell">
       <header className="topbar">
         <a className="brand" href="/">self<span>.</span>market</a>
-        <nav className="main-nav"><a className="active" href="/">Заказы</a><a href="/services">Услуги</a><a href="/profile">Профиль</a></nav>
+        <nav className="main-nav"><a className="active" href="/">Заказы</a><a href="/services">Услуги</a><a href="/chats">Сообщения</a><a href="/profile">Профиль</a></nav>
         <a className="text-button" href="/">Назад к заказам</a>
       </header>
       <section className="page-intro">
