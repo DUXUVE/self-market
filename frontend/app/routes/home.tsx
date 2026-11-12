@@ -131,7 +131,7 @@ export default function Home() {
     <main className="app-shell">
       <header className="topbar">
         <a className="brand" href="/">self<span>.</span>market</a>
-        <nav className="main-nav"><a className="active" href="/">Заказы</a><a href="/services">Услуги</a></nav>
+        <nav className="main-nav"><a className="active" href="/">Заказы</a><a href="/services">Услуги</a><a href="/profile">Профиль</a></nav>
         <div className="user-menu">
           <span className="user-name">{user.name}</span>
           <span className="balance">{Math.floor(user.balance_minutes / 60)} ч {user.balance_minutes % 60} мин</span>
