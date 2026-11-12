@@ -168,3 +168,22 @@ input:focus, select:focus { border-color: #a6b49a; }
 .wallet-link { display: inline-block; margin-top: 24px; color: #c6d2b9; font-size: 13px; }
 .wallet-link:hover { color: #e0e8d7; }
 @media (max-width: 560px) { .operation-item { align-items: flex-start; flex-direction: column; } .operation-value { text-align: left; } }
+
+
+.public-profile-layout { display: grid; grid-template-columns: minmax(240px, .75fr) minmax(0, 1.25fr); gap: 22px; align-items: start; padding-bottom: 70px; }
+.reviews-section { min-width: 0; }
+.review-list { display: grid; gap: 12px; }
+.review-card { padding: 20px 22px; border: 1px solid #30312c; border-radius: 11px; background: #191a17; }
+.review-card-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.review-card-top strong { color: #e4e5de; font-size: 13px; }
+.review-card-top span { color: #c6d2b9; letter-spacing: 2px; white-space: nowrap; }
+.review-card p { color: #b2b4ac; font-size: 13px; line-height: 1.7; white-space: pre-wrap; }
+.review-card small { color: #777970; font-size: 11px; }
+.public-service { display: grid; gap: 7px; margin-top: 26px; padding-top: 20px; border-top: 1px solid #30312c; }
+.public-service span, .public-service small { color: #92948c; font-size: 11px; }
+.public-service strong { color: #dce4d3; font-size: 14px; font-weight: 500; }
+.review-form-card { max-width: 720px; margin: 0 0 70px; padding: 26px; border: 1px solid #34392e; border-radius: 13px; background: #191c17; }
+.review-form-card h2 { margin: 0; font-size: 24px; font-weight: 500; }
+.review-form-card .muted { font-size: 13px; }
+.review-form-card .auth-form { max-width: 520px; }
+@media (max-width: 760px) { .public-profile-layout { grid-template-columns: 1fr; } .review-card-top { align-items: flex-start; flex-direction: column; } }
