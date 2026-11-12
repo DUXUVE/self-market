@@ -116,3 +116,20 @@ input:focus, select:focus { border-color: #a6b49a; }
 .profile-phone strong { color: #dce4d3; font-size: 13px; font-weight: 500; }
 .profile-edit-card textarea { width: 100%; border: 1px solid #353730; border-radius: 9px; background: #1a1b18; color: #f1f0ed; padding: 13px 14px; outline: none; resize: vertical; font: inherit; }
 @media (max-width: 760px) { .profile-layout { grid-template-columns: 1fr; } }
+
+
+.heading-actions { display: flex; align-items: center; gap: 18px; }
+.create-order-link { display: inline-block; font-size: 12px; padding: 11px 15px; }
+.form-select, .form-textarea, .form-input { width: 100%; border: 1px solid #353730; border-radius: 9px; background: #1a1b18; color: #f1f0ed; padding: 13px 14px; outline: none; font: inherit; }
+.form-textarea { resize: vertical; min-height: 110px; }
+.order-detail-card { border: 1px solid #30312c; background: #191a17; border-radius: 13px; padding: 30px; margin: 10px 0 70px; }
+.order-detail-card h1 { margin: 18px 0 12px; font-size: clamp(30px, 4vw, 42px); font-weight: 500; letter-spacing: -1.5px; }
+.order-detail-description { color: #b2b4ac; line-height: 1.8; white-space: pre-wrap; }
+.order-detail-info { display: flex; flex-wrap: wrap; gap: 12px 28px; color: #a6b49a; margin: 26px 0; font-size: 13px; }
+.details-actions { display: flex; align-items: center; gap: 16px; margin-top: 28px; }
+.back-link, .details-link { color: #b9c7a8; font-size: 13px; }
+.details-link { margin-left: 10px; }
+@media (max-width: 760px) {
+  .heading-actions { align-items: flex-end; flex-direction: column; gap: 10px; }
+  .order-detail-card { padding: 22px; }
+}
