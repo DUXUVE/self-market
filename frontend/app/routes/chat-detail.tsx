@@ -10,7 +10,6 @@ export default function ChatDetailPage() {
   const { chatId } = useParams();
   const [token, setToken] = useState("");
   const [user, setUser] = useState<User | null>(null);
-  const [order, setOrder] = useState<Order | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [draft, setDraft] = useState("");
   const [notice, setNotice] = useState("Загружаем переписку…");
