@@ -144,7 +144,7 @@ export default function Home() {
         <div className="balance-card"><span>Ваш баланс</span><strong>{(user.balance_minutes / 60).toFixed(1)} <small>часа</small></strong></div>
       </section>
       <section className="market-section">
-        <div className="section-heading"><div><p className="eyebrow">СООБЩЕСТВО</p><h2>Открытые заказы</h2></div><span className="count">{orders.length} объявлений</span></div>
+        <div className="section-heading"><div><p className="eyebrow">СООБЩЕСТВО</p><h2>Открытые заказы</h2></div><div className="heading-actions"><span className="count">{orders.length} объявлений</span><a className="primary-button create-order-link" href="/orders/new">Создать заказ</a></div></div>
         <form className="filters" onSubmit={handleSearch}>
           <input value={filterCity} onChange={(e) => setFilterCity(e.target.value)} placeholder="Город" />
           <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
@@ -157,7 +157,7 @@ export default function Home() {
         {orders.length === 0 ? <div className="empty-state"><span>✳</span><h3>Пока здесь тихо</h3><p>Открытых заказов пока нет. Загляните позже или измените фильтры.</p></div> :
           <div className="order-grid">{orders.map((order) => <article className="order-card" key={order.id}>
             <div className="order-meta"><span>{categories.find((item) => item.id === order.category_id)?.title ?? "Другое"}</span><span>{order.city}</span></div>
-            <h3>{order.title}</h3><p className="order-description">{order.description}</p>
+            <h3><a href={`/orders/${order.id}`}>{order.title}</a></h3><p className="order-description">{order.description}</p>
             <div className="order-bottom"><strong>{order.price} ч <small>времени</small></strong><button onClick={() => handleApply(order.id)} disabled={order.user_id === user.id}>Откликнуться</button></div>
             {order.user_id === user.id && <span className="own-order">Ваш заказ</span>}
           </article>)}</div>}
