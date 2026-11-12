@@ -141,7 +141,7 @@ export default function Home() {
       <section className="welcome-block">
         <div><p className="eyebrow">МАРКЕТПЛЕЙС ВРЕМЕНИ</p><h1>Привет, {user.name.split(" ")[0]}.</h1>
           <p className="muted">Найдите помощь или поделитесь тем, что умеете.</p></div>
-        <div className="balance-card"><span>Ваш баланс</span><strong>{(user.balance_minutes / 60).toFixed(1)} <small>часа</small></strong></div>
+        <a className="balance-card" href="/wallet"><span>Ваш баланс · история операций →</span><strong>{(user.balance_minutes / 60).toFixed(1)} <small>часа</small></strong></a>
       </section>
       <section className="market-section">
         <div className="section-heading"><div><p className="eyebrow">СООБЩЕСТВО</p><h2>Открытые заказы</h2></div><div className="heading-actions"><span className="count">{orders.length} объявлений</span><a className="primary-button create-order-link" href="/orders/new">Создать заказ</a></div></div>
