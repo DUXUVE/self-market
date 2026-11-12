@@ -99,3 +99,20 @@ input:focus, select:focus { border-color: #a6b49a; }
   .main-nav { gap: 14px; }
   .topbar { gap: 12px; }
 }
+
+
+.profile-layout { display: grid; grid-template-columns: minmax(240px, .75fr) minmax(0, 1.25fr); gap: 22px; align-items: start; padding-bottom: 70px; }
+.profile-summary, .profile-edit-card { border: 1px solid #30312c; background: #191a17; border-radius: 13px; padding: 26px; }
+.avatar-placeholder { width: 68px; height: 68px; border-radius: 50%; display: grid; place-items: center; background: #30382a; color: #dce4d3; font-size: 28px; }
+.profile-summary h2 { margin: 18px 0 2px; font-size: 23px; font-weight: 500; }
+.profile-summary > .muted { margin: 0; font-size: 13px; }
+.profile-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 12px; margin-top: 28px; }
+.profile-stats div { display: grid; gap: 4px; }
+.profile-stats strong { color: #dce4d3; font-size: 24px; font-weight: 600; }
+.profile-stats span, .profile-phone span { color: #92948c; font-size: 11px; }
+.profile-edit-card h2 { margin: 0; font-size: 23px; font-weight: 500; }
+.profile-edit-card .muted { font-size: 13px; }
+.profile-phone { display: flex; justify-content: space-between; gap: 12px; border-bottom: 1px solid #30312c; padding: 15px 0; margin-top: 18px; }
+.profile-phone strong { color: #dce4d3; font-size: 13px; font-weight: 500; }
+.profile-edit-card textarea { width: 100%; border: 1px solid #353730; border-radius: 9px; background: #1a1b18; color: #f1f0ed; padding: 13px 14px; outline: none; resize: vertical; font: inherit; }
+@media (max-width: 760px) { .profile-layout { grid-template-columns: 1fr; } }
