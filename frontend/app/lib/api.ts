@@ -158,3 +158,21 @@ export function sendChatMessage(chatId: number, messageText: string, token: stri
     body: JSON.stringify({ message_text: messageText }),
   }, token);
 }
+
+
+export type WalletOperation = {
+  id: number;
+  sender_id: number;
+  user_id: number;
+  order_id: number;
+  hours_amount: number;
+  status: string;
+  created_at: string;
+  sender_name: string;
+  receiver_name: string;
+  order_title: string;
+};
+
+export function getWalletOperations(token: string) {
+  return request<WalletOperation[]>("/wallet/operations", {}, token);
+}
