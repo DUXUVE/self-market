@@ -8,4 +8,5 @@ export default [
   route("orders/:orderId", "routes/order-detail.tsx"),
   route("chats", "routes/chats.tsx"),
   route("chats/:chatId", "routes/chat-detail.tsx"),
+  route("wallet", "routes/wallet.tsx"),
 ] satisfies RouteConfig;
