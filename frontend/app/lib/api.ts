@@ -115,3 +115,13 @@ export function createService(
     body: JSON.stringify(data),
   }, token);
 }
+
+export function updateMe(
+  data: { name: string; city: string; description: string },
+  token: string,
+) {
+  return request<User>("/users/me", {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  }, token);
+}
