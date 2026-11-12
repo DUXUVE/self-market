@@ -29,6 +29,15 @@ export type Order = {
   creation_date: string;
 };
 
+export type Service = {
+  id: number;
+  user_id: number;
+  category_id: number;
+  title: string;
+  description: string;
+  price: number;
+};
+
 async function request<T>(path: string, options: RequestInit = {}, token?: string): Promise<T> {
   const headers = new Headers(options.headers);
   if (options.body && !(options.body instanceof URLSearchParams)) {
@@ -88,4 +97,21 @@ export function getOrders(city = "", categoryId = "") {
 
 export function applyToOrder(orderId: number, token: string) {
   return request(`/orders/${orderId}/apply`, { method: "POST" }, token);
+}
+
+export function getServices(categoryId = "") {
+  const params = new URLSearchParams();
+  if (categoryId) params.set("category_id", categoryId);
+  const query = params.toString();
+  return request<Service[]>(`/services${query ? `?${query}` : ""}`);
+}
+
+export function createService(
+  data: { category_id: number; title: string; description: string; price: number },
+  token: string,
+) {
+  return request<Service>("/services", {
+    method: "POST",
+    body: JSON.stringify(data),
+  }, token);
 }
