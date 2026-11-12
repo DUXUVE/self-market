@@ -79,6 +79,7 @@ export default function ServicesPage() {
         <nav className="main-nav">
           <a href="/">Заказы</a>
           <a className="active" href="/services">Услуги</a>
+          <a href="/profile">Профиль</a>
         </nav>
         <a className="text-button" href="/">На главную</a>
       </header>
